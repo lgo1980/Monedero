@@ -31,15 +31,23 @@ public class Cuenta {
   función aparte para que el código sea más escalable.
    */
   public void poner(double cuanto) {
-    if (cuanto <= 0) {
-      throw new MontoNegativoException(cuanto + ": el monto a ingresar debe ser un valor positivo");
-    }
+    validarQueSeaPositivo(cuanto);
 
+    validarQueNoSePaseLos3Depositos();
+
+    new Movimiento(LocalDate.now(), cuanto, true).agregateA(this);
+  }
+
+  private void validarQueNoSePaseLos3Depositos() {
     if (getMovimientos().stream().filter(Movimiento::isDeposito).count() >= 3) {
       throw new MaximaCantidadDepositosException("Ya excedio los " + 3 + " depositos diarios");
     }
+  }
 
-    new Movimiento(LocalDate.now(), cuanto, true).agregateA(this);
+  private static void validarQueSeaPositivo(double cuanto) {
+    if (cuanto <= 0) {
+      throw new MontoNegativoException(cuanto + ": el monto a ingresar debe ser un valor positivo");
+    }
   }
 
   /*
@@ -48,19 +56,25 @@ public class Cuenta {
   función aparte para que el código sea más escalable.
    */
   public void sacar(double cuanto) {
-    if (cuanto <= 0) {
-      throw new MontoNegativoException(cuanto + ": el monto a ingresar debe ser un valor positivo");
-    }
-    if (getSaldo() - cuanto < 0) {
-      throw new SaldoMenorException("No puede sacar mas de " + getSaldo() + " $");
-    }
+    validarQueSeaPositivo(cuanto);
+    validarQueNoSePuedeSacarMasDineroDelQueHay(cuanto);
     double montoExtraidoHoy = getMontoExtraidoA(LocalDate.now());
     double limite = 1000 - montoExtraidoHoy;
+    validarQueNoExedaElLimiteDeDinero(cuanto, limite);
+    new Movimiento(LocalDate.now(), cuanto, false).agregateA(this);
+  }
+
+  private static void validarQueNoExedaElLimiteDeDinero(double cuanto, double limite) {
     if (cuanto > limite) {
       throw new MaximoExtraccionDiarioException("No puede extraer mas de $ " + 1000
           + " diarios, límite: " + limite);
     }
-    new Movimiento(LocalDate.now(), cuanto, false).agregateA(this);
+  }
+
+  private void validarQueNoSePuedeSacarMasDineroDelQueHay(double cuanto) {
+    if (getSaldo() - cuanto < 0) {
+      throw new SaldoMenorException("No puede sacar mas de " + getSaldo() + " $");
+    }
   }
 
   public void agregarMovimiento(LocalDate fecha, double cuanto, boolean esDeposito) {
