@@ -49,11 +49,18 @@ public class Movimiento {
     cuenta.agregarMovimiento(fecha, monto, esDeposito);
   }
 
+  /*
+  Este es un code smells
   public double calcularValor(Cuenta cuenta) {
     if (esDeposito) {
       return cuenta.getSaldo() + getMonto();
     } else {
       return cuenta.getSaldo() - getMonto();
     }
+  }
+   */
+  public double calcularValor(Cuenta cuenta) {
+    double montoARestar = ((esDeposito) ? getMonto() : (-1) * getMonto());
+    return cuenta.getSaldo() + montoARestar;
   }
 }

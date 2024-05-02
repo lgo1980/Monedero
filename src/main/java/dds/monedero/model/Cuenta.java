@@ -15,6 +15,7 @@ public class Cuenta {
   private List<Movimiento> movimientos = new ArrayList<>();
 
   public Cuenta() {
+    //Este no es necesario
     saldo = 0;
   }
 
@@ -26,18 +27,28 @@ public class Cuenta {
     this.movimientos = movimientos;
   }
 
+  /*
+  Esto creo que es un code smells tanto el nombre del método como del parametro debería llamarse un poco
+  más expresivo como ingresar dinero y cuanto → cantidadDinero y la validación tal vez hacerla en una
+  función aparte para que el código sea más escalable.
+   */
   public void poner(double cuanto) {
     if (cuanto <= 0) {
       throw new MontoNegativoException(cuanto + ": el monto a ingresar debe ser un valor positivo");
     }
 
-    if (getMovimientos().stream().filter(movimiento -> movimiento.isDeposito()).count() >= 3) {
+    if (getMovimientos().stream().filter(Movimiento::isDeposito).count() >= 3) {
       throw new MaximaCantidadDepositosException("Ya excedio los " + 3 + " depositos diarios");
     }
 
     new Movimiento(LocalDate.now(), cuanto, true).agregateA(this);
   }
 
+  /*
+  Esto creo que es un code smells tanto el nombre del método como del parametro debería llamarse un poco
+  más expresivo como extraer dinero y cuanto → cantidadDinero y la validación tal vez hacerla en una
+  función aparte para que el código sea más escalable.
+   */
   public void sacar(double cuanto) {
     if (cuanto <= 0) {
       throw new MontoNegativoException(cuanto + ": el monto a ingresar debe ser un valor positivo");
